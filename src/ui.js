@@ -7,17 +7,18 @@ import {
   GLOSSARY,
   JALOPY,
   PLAYER,
+  SAVINGS_RESERVE,
   TRADE,
   groupsFor,
   insuranceFor,
   paintOf,
   priceBuild,
 } from './data.js';
-import { aprFloor, aprOpen, floorPrice, monthlyTakeHome, openPrice, paymentZone, weeklyFromMonthly } from './finance.js';
+import { aprFloor, aprOpen, floorPrice, monthlyTakeHome, openPrice, ownershipCost, paymentZone, weeklyFromMonthly } from './finance.js';
 import { esc, money, moneyExact, pct } from './format.js';
 import { vinnyFace, rickyFace } from './portraits.js';
 import { effectiveScore, ensureBuild, ensureDeal, getCar, state } from './state.js';
-import { askVinny, buildQuoteInput, cosignLine, creditIntro, creditResult, deskTip, rickyLine, scoreBand, studioTip } from './vinny.js';
+import { askVinny, buildQuoteInput, cosignLine, creditIntro, creditResult, deskTip, rickyLine, scoreBand, studioTip, tcoLine } from './vinny.js';
 import { audio } from './audio.js';
 
 const STEPS = [
@@ -185,7 +186,7 @@ export function patchDesk({ sliders = false } = {}) {
   setText('trade-readout', money(deal.trade));
   setText('apr-readout', `${deal.apr.toFixed(2)}%`);
   setText('check-readout', `${money(deal.downChecking)} down · ${money(PLAYER.checking - deal.downChecking)} left`);
-  setText('save-readout', deal.downSavings > 0 ? `${money(deal.downSavings)} out of the emergency fund` : 'Leave it alone');
+  setText('save-readout', savingsReadout(deal.downSavings));
   setText('ricky-line', rickyLine(car, deal));
   setText('vinny-desk-text', state.advice || deskTip(car, deal, q));
   setText('dock-pay', money(q.payment, true));
@@ -199,6 +200,9 @@ export function patchDesk({ sliders = false } = {}) {
   if (pressure) pressure.innerHTML = pressureBanner(q);
   const budget = document.getElementById('budget-mount');
   if (budget) budget.innerHTML = budgetHTML(q);
+  const tco = document.getElementById('tco-mount');
+  if (tco) tco.innerHTML = tcoHTML(car, q);
+  document.querySelector('[data-lever="savings"]')?.closest('.lever')?.classList.toggle('warn', savingsThin(deal.downSavings));
   const sheet = document.getElementById('sheet-mount');
   if (sheet) sheet.innerHTML = worksheetHTML(car, deal, priced, q);
   document.querySelectorAll('[data-term]').forEach((btn) => {
@@ -232,6 +236,28 @@ export function setOdo(value) {
 function setSlider(name, value) {
   const el = document.querySelector(`[data-lever="${name}"]`);
   if (el) el.value = String(value);
+}
+
+function savingsReadout(downSavings) {
+  const left = PLAYER.savings - downSavings;
+  if (downSavings <= 0) return 'None down yet';
+  if (left < SAVINGS_RESERVE) return `${money(downSavings)} · backup thin`;
+  return `${money(downSavings)} down · ${money(left)} left`;
+}
+
+function savingsThin(downSavings) {
+  return downSavings > 0 && PLAYER.savings - downSavings < SAVINGS_RESERVE;
+}
+
+function tcoHTML(car, q) {
+  const own = ownershipCost(car, q);
+  return `<section class="tco">
+    <div class="tco-top">
+      <span>Total cost of ownership ${what('tco')}</span>
+      <strong>${money(own.total)}</strong>
+    </div>
+    <p>${esc(tcoLine(car, own))}</p>
+  </section>`;
 }
 
 function setText(id, text) {
@@ -301,7 +327,7 @@ function drawerHTML() {
       <li><span>Savings</span><b>${money(PLAYER.savings)}</b></li>
       ${score ? `<li><span>Credit ${what('credit')}</span><b>${score}${state.credit.cosign ? ` → ${effective} with Ma` : ''}</b></li>` : ''}
     </ul>
-    <p class="fine">Savings is the emergency fund. Vinny gets loud if you spend it on a spoiler.</p>
+    <p class="fine">About ${money(PLAYER.savings)} in savings. A chunk of it can be the down payment. Leave roughly ${money(SAVINGS_RESERVE)} — two months of bills — and do not blow the pile on a spoiler.</p>
   </div>`;
 }
 
@@ -537,6 +563,7 @@ function deskScreen() {
       <p class="desk-car">${esc(car.name)} · build ${money(priced.total)} before tax</p>
       <div id="pressure">${pressureBanner(q)}</div>
       <div id="budget-mount">${budgetHTML(q)}</div>
+      <div id="tco-mount">${tcoHTML(car, q)}</div>
 
       ${lever({
         label: 'Car price',
@@ -617,19 +644,20 @@ function deskScreen() {
         nudge: '',
       })}
       ${lever({
-        label: 'Dip into savings',
+        label: 'Down from savings',
         term: 'down',
         readoutId: 'save-readout',
-        readout: deal.downSavings > 0 ? `${money(deal.downSavings)} out of the emergency fund` : 'Leave it alone',
+        readout: savingsReadout(deal.downSavings),
         name: 'savings',
         min: 0,
         max: PLAYER.savings,
         step: 500,
         value: deal.downSavings,
-        left: 'Untouched',
+        left: 'None yet',
         right: money(PLAYER.savings),
         nudge: '',
-        warn: true,
+        warn: savingsThin(deal.downSavings),
+        note: `Leave about ${money(SAVINGS_RESERVE)}, two months of bills. The rest can go on the hood.`,
       })}
 
       <div id="sheet-mount">${worksheetHTML(car, deal, priced, q)}</div>
@@ -745,6 +773,7 @@ function gradeScreen() {
     <h1>${esc(grade.title)}</h1>
     <p class="score-num">${grade.score} out of 100</p>
     ${bubble(grade.narrative)}
+    ${tcoHTML(car, q)}
     <ul class="recap">
       <li><span>Payment</span><b>${money(q.payment, true)}/mo</b></li>
       <li><span>Out the door</span><b>${moneyExact(q.otd)}</b></li>

@@ -1,5 +1,5 @@
 import { BILLS_MONTHLY, CARS, GLOSSARY, GROUPS, JALOPY, PLAYER, freshBuild, groupsFor, priceBuild } from '../src/data.js';
-import { aprFloor, floorPrice, monthlyPayment, openPrice, quote } from '../src/finance.js';
+import { aprFloor, floorPrice, monthlyPayment, openPrice, ownershipCost, quote } from '../src/finance.js';
 import { carSVG, jalopySVG } from '../src/car-art.js';
 import { gradeDeal } from '../src/vinny.js';
 import { rollScore } from '../src/state.js';
@@ -63,7 +63,8 @@ const sound = GROUPS.find((group) => group.id === 'sound');
 assert(sound.options.length >= 6, 'sound options');
 const warranty = GROUPS.find((group) => group.id === 'warranty');
 const prices = Object.fromEntries(warranty.options.map((option) => [option.id, option.price]));
-assert(prices.basic === 2000 && prices.bumper === 3500 && prices.platinum === 5000, 'warranty prices');
+assert(prices.none === 0 && prices.tech === 650 && prices.basic === 2000 && prices.bumper === 3500 && prices.platinum === 5000, 'warranty prices');
+assert(prices.tech < 1000, 'electronics coverage stays a small cost');
 
 const truck = groupsFor('ironhorn').flatMap((group) => group.options.map((option) => option.name.toLowerCase()));
 for (const word of ['bed', 'tonneau', 'winch', 'lift', 'exhaust']) {
@@ -78,7 +79,7 @@ assert(breeze.includes('black') && breeze.includes('underglow') && breeze.includ
 const harbor = groupsFor('harbor').flatMap((group) => group.options.map((option) => option.id));
 for (const id of ['cargo', 'rack', 'ppf', 'eff']) assert(harbor.includes(id), `harbor missing ${id}`);
 
-for (const term of ['apr', 'principal', 'term', 'trade', 'negative', 'otd', 'payment', 'warranty', 'cosigner', 'credit', 'down', 'interest', 'amortization', 'msrp', 'tax', 'takehome', 'financed']) {
+for (const term of ['apr', 'principal', 'term', 'trade', 'negative', 'otd', 'payment', 'warranty', 'tco', 'cosigner', 'credit', 'down', 'interest', 'amortization', 'msrp', 'tax', 'takehome', 'financed']) {
   assert(GLOSSARY[term] && GLOSSARY[term].body.split('.').length >= 2, `glossary ${term}`);
 }
 
@@ -95,6 +96,11 @@ const sheet = quote({
 assert(sheet.financed > 0 && sheet.payment > 0, 'quote payment');
 assert(Math.abs((sheet.otd - 1000) - sheet.financed) < 0.02, 'financed identity');
 assert(sheet.payment < sheet.monthlyTake * 0.15, `harbor-like deal should clear 15% (${sheet.payment})`);
+
+const own = ownershipCost(CARS.find((car) => car.id === 'harbor'), sheet);
+assert(own.warranty === 2000 && own.interest === sheet.interest, 'tco keeps warranty and interest');
+assert(own.insurance > 0 && own.upkeep > 0, 'tco includes insurance and upkeep');
+assert(own.total > sheet.totalOfPayments + sheet.down, 'tco is more than the note');
 
 const stallion = CARS[0];
 const heavy = quote({

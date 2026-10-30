@@ -15,6 +15,9 @@ export const BILLS = [
 
 export const BILLS_MONTHLY = BILLS.reduce((sum, bill) => sum + bill.amount, 0);
 
+/** Cash that stays put: about two months of the locked bills. */
+export const SAVINGS_RESERVE = BILLS_MONTHLY * 2;
+
 export const FEES = {
   doc: 599,
   title: 385,
@@ -47,6 +50,7 @@ export const CARS = [
     markup: 0.05,
     room: 0.04,
     insurance: 310,
+    running: 340,
     hot: true,
     colors: [
       { id: 'rosso', name: 'Rosso Notte', hex: '#8f1d2c', price: 0 },
@@ -71,6 +75,7 @@ export const CARS = [
     markup: 0.02,
     room: 0.1,
     insurance: 128,
+    running: 115,
     colors: [
       { id: 'glacier', name: 'Glacier White', hex: '#f4f7f8', price: 0 },
       { id: 'silver', name: 'Silver Mist', hex: '#cfd3d6', price: 0 },
@@ -94,6 +99,7 @@ export const CARS = [
     markup: 0.035,
     room: 0.07,
     insurance: 195,
+    running: 275,
     colors: [
       { id: 'summit', name: 'Summit White', hex: '#f2f3f4', price: 0 },
       { id: 'black', name: 'Black', hex: '#1a1a1a', price: 0 },
@@ -117,6 +123,7 @@ export const CARS = [
     markup: 0.025,
     room: 0.09,
     insurance: 172,
+    running: 175,
     colors: [
       { id: 'cloud', name: 'Cloud White', hex: '#f7f4ef', price: 0 },
       { id: 'black', name: 'Black', hex: '#1c1c1c', price: 0 },
@@ -370,10 +377,11 @@ export const GROUPS = [
     mode: 'single',
     cars: ALL,
     options: [
-      opt({ id: 'none', name: 'Factory coverage only', price: 0, tag: 'value', blurb: 'Whatever the maker already promised. Read it. It is not nothing.', tip: 'Factory coverage is already on the car. Do not buy a second promise until you know what the first one says.' }),
-      opt({ id: 'basic', name: 'Powertrain, 5 years', price: 2000, tag: 'smart', blurb: 'Engine, transmission, the expensive organs. Two thousand.', tip: 'Two grand for the powertrain. On a car you are keeping, that is the warranty I understand.' }),
-      opt({ id: 'bumper', name: 'Bumper-to-bumper, 6 years', price: 3500, tag: 'fluff', blurb: 'A wider net for six years. Read the exclusions before you fall in love.', tip: 'Thirty-five hundred, bumper to bumper. Ask what is excluded. The answer is the part that breaks.' }),
-      opt({ id: 'platinum', name: 'Platinum concierge, 8 years', price: 5000, tag: 'joke', blurb: 'The long hug. Loaner cars, a binder, and a lot of adjectives.', tip: 'Five thousand for the platinum hug. On a seventy-grand car I will listen. On a daily driver, you are buying Ricky a boat.' }),
+      opt({ id: 'none', name: 'Factory coverage only', price: 0, tag: 'value', blurb: 'The maker’s promise, already on a new car. A big reason you buy new.', tip: 'You are buying new. The factory already covers the bumper and the powertrain. That is the point. Do not pay for the same promise twice.' }),
+      opt({ id: 'tech', name: 'Electronics, 4 years', price: 650, tag: 'smart', blurb: 'Screens, cameras, infotainment. The stuff that fails and costs real money to fix.', tip: 'Electronics. Screens, cameras, the big display. That stuff dies and the bill is ugly. A few hundred, I understand. The engine and the bumper, the factory already has.' }),
+      opt({ id: 'basic', name: 'Powertrain, 5 years', price: 2000, tag: 'fluff', blurb: 'Engine and transmission past the factory window. On a new car you already bought that window.', tip: 'Two thousand for a powertrain warranty on a car that just came with one. Buying new was that coverage. I would not pay for it twice.' }),
+      opt({ id: 'bumper', name: 'Bumper-to-bumper, 6 years', price: 3500, tag: 'fluff', blurb: 'A full wrap for six years. On a new car it mostly repeats the factory promise.', tip: 'Bumper-to-bumper, thirty-five hundred, on a new car. You already bought that when you bought new. If you add one thing, make it the electronics. Not this.' }),
+      opt({ id: 'platinum', name: 'Platinum concierge, 8 years', price: 5000, tag: 'joke', blurb: 'The long hug. Loaner cars, a binder, and a lot of adjectives.', tip: 'Five thousand for the platinum hug. The car is new. Factory coverage is the hug you already paid for. This binder buys Ricky a boat.' }),
     ],
   },
 ];
@@ -528,7 +536,7 @@ export const GLOSSARY = {
   },
   down: {
     title: 'Down payment',
-    body: 'A down payment is cash you put in up front so you borrow less. Less principal, less interest, smaller payment. Beautiful. Just do not empty the checking account to impress a man at a desk. Rent is still due.',
+    body: 'A down payment is cash you put in up front so you borrow less. Less principal, less interest, and you are not upside down the second the tires hit the street. With about fifteen thousand in savings, a chunk of that pile is often for exactly this. Leave roughly two months of bills as backup, and it is fine to use some of the rest. Better real money down than zero down and a loan that is already underwater. Do not empty checking to impress a man at a desk. Rent is still due.',
   },
   trade: {
     title: 'Trade equity',
@@ -544,7 +552,11 @@ export const GLOSSARY = {
   },
   warranty: {
     title: 'Warranty',
-    body: 'A warranty is a paid promise to fix certain things for a while. Two grand for the powertrain can be peace of mind. Five grand “platinum” is often a brochure with holes in it. Buy the promise that matches the car, not the one that matches a bonus.',
+    body: 'A warranty is a paid promise to fix certain things for a while. You are buying new, so factory bumper-to-bumper and powertrain coverage is already a big reason the car costs what it costs. Paying again for that full wrap is often money you do not need. Electronics are the exception. Screens, cameras, the infotainment. That stuff fails, and it is expensive. A small policy for the tech can be the smart one. Read what is actually covered. The brochure is not the contract.',
+  },
+  tco: {
+    title: 'Total cost of ownership',
+    body: 'Total cost of ownership is what the car costs to live with, not the number on the windshield. It rolls up the payments, the interest hiding inside them, insurance, a straight guess at gas and maintenance, and the warranty you actually picked. The sticker is the invitation. Ownership is the whole night. One number, so it does not turn into homework.',
   },
   msrp: {
     title: 'MSRP',
