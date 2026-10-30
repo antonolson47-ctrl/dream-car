@@ -1,0 +1,17 @@
+{
+  "name": "Dream Car",
+  "short_name": "Dream Car",
+  "description": "A car-shopping game with a design studio, a negotiation desk, and a friend who counts.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#07080d",
+  "theme_color": "#07080d",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
