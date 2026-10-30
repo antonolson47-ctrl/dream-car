@@ -102,6 +102,32 @@ export function quote({
   };
 }
 
+/**
+ * What it costs to live with the car for the whole term.
+ * Payments already include the warranty, tax, and fees.
+ * Insurance and upkeep are Vinny’s estimates, not a second loan.
+ */
+export function ownershipCost(car, q) {
+  const months = q.term;
+  const runningMonthly = car.running ?? 160;
+  const note = q.totalOfPayments;
+  const insurance = roundCents((q.insurance || 0) * months);
+  const upkeep = roundCents(runningMonthly * months);
+  const down = q.down || 0;
+  const total = roundCents(note + down + insurance + upkeep);
+  return {
+    months,
+    note,
+    interest: q.interest,
+    insurance,
+    upkeep,
+    runningMonthly,
+    down,
+    warranty: q.warranty || 0,
+    total,
+  };
+}
+
 export function paymentZone(share) {
   if (share > 0.2 || !Number.isFinite(share)) return 'bad';
   if (share > 0.15) return 'warn';
