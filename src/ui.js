@@ -920,7 +920,13 @@ function gradeScreen() {
   const grade = state.grade;
   const car = getCar();
   if (!grade) {
-    return `<section class="grade"><p>No deal on the table.</p><button type="button" class="btn primary" data-action="another">Back to the lot</button></section>`;
+    return `<section class="grade">
+      <div class="grade-body">
+        <p>No deal on the table.</p>
+        <button type="button" class="btn primary" data-action="another">Back to the lot</button>
+      </div>
+      ${gradeExit()}
+    </section>`;
   }
   const q = grade.quote;
   const weak = grade.score < 80;
@@ -946,6 +952,7 @@ function gradeScreen() {
             ? '<p class="wah-label">Wah-wah.</p>'
             : '';
   return `<section class="grade ${moodClass}">
+    <div class="grade-body">
     ${confetti}
     <p class="eyebrow">${esc(car.name)} · Falco Motors</p>
     <div class="letter tone-${tone}">${esc(grade.letter)}</div>
@@ -971,10 +978,17 @@ function gradeScreen() {
     <div class="stack">
       <button type="button" class="btn ${weak ? 'primary' : 'ghost'}" data-action="tweak">Tweak this deal</button>
       <button type="button" class="btn ${weak ? 'ghost' : 'primary'}" data-action="another">Shop another car</button>
-      <p class="fine">This session is done.</p>
-      <button type="button" class="btn ghost" data-action="restart">Start again</button>
     </div>
+    </div>
+    ${gradeExit()}
   </section>`;
+}
+
+function gradeExit() {
+  return `<div class="grade-exit">
+    <p class="fine">This session is done.</p>
+    <button type="button" class="btn primary" data-action="restart">Start again</button>
+  </div>`;
 }
 
 export function adviceText() {
