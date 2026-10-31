@@ -15,29 +15,29 @@ export function vinnyStoryArt() {
     </defs>
     <rect width="360" height="300" fill="#100c10"/>
     <rect width="360" height="300" fill="url(#vinny-spot)"/>
-    <path d="M40 300c16-40 70-70 140-76 70 6 124 36 140 76z" fill="url(#vinny-coat)"/>
-    <path d="M128 198l52-16 52 16v102H128z" fill="#23272d"/>
-    <path d="M158 190h44l8 110h-60z" fill="#f4f1ea"/>
-    <path d="M174 198l6 16 6-16 8 102h-28z" fill="#6e2434"/>
-    <path d="M214 214h18l-2 14h-14z" fill="#f6f1e7"/>
-    <path d="M166 156h28v40h-28z" fill="#c9845a"/>
-    <path d="M132 118c2-4 8-22 16-28 2 12 4 22 2 32-6 2-14 2-18-4z" fill="#c9845a" stroke="#1a120c" stroke-width="1.6"/>
-    <path d="M228 118c-2-4-8-22-16-28-2 12-4 22-2 32 6 2 14 2 18-4z" fill="#c9845a" stroke="#1a120c" stroke-width="1.6"/>
-    <path d="M148 92c1-16 12-32 32-34 18-2 32 10 34 28 2 16 2 34-2 50-4 14-14 24-32 26-16 2-30-6-36-20-6-14-8-32-6-48-1-8 4-16 10-2z" fill="#d4926a" stroke="#1a120c" stroke-width="2"/>
-    <path d="M156 128c4 16 14 26 24 28 10-2 18-12 22-28-10 6-36 6-46 0z" fill="#b56d48" opacity=".4"/>
-    <path d="M136 108c-2-28 8-58 28-70 16-10 36-8 52 4 14 10 24 36 22 64-4 6-14 2-18-10-6-22-18-36-36-34-16 2-26 16-30 36-2 8-10 14-18 10z" fill="#14110f"/>
-    <path d="M162 48c10-14 28-16 40-4 4 10-4 14-14 10-8-4-18-4-26-6z" fill="#2c261f"/>
-    <path d="M158 78c8-6 18-8 28-2" fill="none" stroke="#3a332c" stroke-width="2" stroke-linecap="round"/>
-    <path d="M150 112c10-4 18-3 24 2" fill="none" stroke="#1a120c" stroke-width="3" stroke-linecap="round"/>
-    <path d="M186 110c8-5 18-3 26 3" fill="none" stroke="#1a120c" stroke-width="3" stroke-linecap="round"/>
-    <path d="M154 118c6 2 14 3 18 0" fill="#8a5a40" opacity=".7"/>
-    <path d="M190 118c4-2 12-2 18 1" fill="#8a5a40" opacity=".7"/>
-    <ellipse cx="164" cy="122" rx="5" ry="2.6" fill="#1a120c"/>
-    <ellipse cx="200" cy="122" rx="5" ry="2.6" fill="#1a120c"/>
-    <path d="M176 118c.6 8 .4 14 0 20" fill="none" stroke="#a86b52" stroke-width="2" stroke-linecap="round"/>
-    <path d="M168 136c2 1 5 1.4 8 .4" fill="none" stroke="#8d4a3a" stroke-width="1.2"/>
-    <path d="M152 150c8-2 16-4 24-2 8 1 16 4 26 8 2 4 0 8-6 10-10 3-28 2-40-2-6-2-8-6-4-14z" fill="#14110f"/>
-    <path d="M160 172c8 3 18 3 26 0" fill="none" stroke="#5c3030" stroke-width="1.8" stroke-linecap="round"/>
+    <path d="M28 300c14-36 64-64 152-70 88 6 138 34 152 70z" fill="#2a3140"/>
+    <path d="M118 186l62-18 62 18v114H118z" fill="#243044"/>
+    <path d="M156 176h48l10 124h-68z" fill="#f7f4ee"/>
+    <path d="M172 184l8 18 8-18 10 116h-36z" fill="#6b1d32"/>
+    <path d="M228 206h22l-3 16h-16z" fill="#f6f1e7"/>
+    <path d="M164 150h32v42h-32z" fill="#c9845a"/>
+    <path d="M128 112c1-6 8-24 16-30 3 12 4 24 1 34-6 3-14 3-17-4z" fill="#c9845a" stroke="#1a120c" stroke-width="1.5"/>
+    <path d="M232 112c-1-6-8-24-16-30-3 12-4 24-1 34 6 3 14 3 17-4z" fill="#c9845a" stroke="#1a120c" stroke-width="1.5"/>
+    <path d="M146 96c0-18 14-36 34-38 20-2 36 12 38 32 2 18 0 38-6 54-6 14-16 22-32 24-18 2-32-8-38-24-6-16-8-32-4-48-1-6 4-12 8 0z" fill="#d4926a" stroke="#1a120c" stroke-width="2"/>
+    <path d="M154 124c5 18 16 30 26 32 10-2 20-14 26-32-12 7-40 7-52 0z" fill="#a86b48" opacity=".42"/>
+    <path d="M130 132C124 92 132 48 156 28C172 12 198 8 216 24C234 42 240 78 232 128L210 122C206 96 194 86 180 88C164 90 150 102 146 124Z" fill="#120f0d"/>
+    <path d="M158 70C172 40 198 36 218 58" fill="none" stroke="#3d342c" stroke-width="2.6" stroke-linecap="round"/>
+    <path d="M150 88C170 62 200 64 214 86" fill="none" stroke="#2a241e" stroke-width="2" stroke-linecap="round"/>
+    <path d="M150 112c12-5 22-4 28 2" fill="none" stroke="#1a120c" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M186 110c10-6 20-3 28 4" fill="none" stroke="#1a120c" stroke-width="3.2" stroke-linecap="round"/>
+    <path d="M152 120c8 2 16 3 20 0" fill="#7a4a34" opacity=".75"/>
+    <path d="M190 120c6-2 14-1 22 2" fill="#7a4a34" opacity=".75"/>
+    <ellipse cx="164" cy="124" rx="5.5" ry="2.8" fill="#1a120c"/>
+    <ellipse cx="202" cy="124" rx="5.5" ry="2.8" fill="#1a120c"/>
+    <path d="M176 118c.7 9 .4 16 0 22" fill="none" stroke="#a86b52" stroke-width="2.1" stroke-linecap="round"/>
+    <path d="M168 140c2.2 1.2 5 1.6 7.5.4" fill="none" stroke="#8d4a3a" stroke-width="1.3"/>
+    <path d="M150 154c10-3 18-5 26-3 9 1.4 18 5 28 9 3 5 1 10-6 12-12 4-32 3-46-2-7-3-8-8-2-16z" fill="#120f0d"/>
+    <path d="M158 176c10 4 22 4 32 0" fill="none" stroke="#5c3030" stroke-width="2" stroke-linecap="round"/>
     <path d="M70 248c28-16 70-22 110-8" fill="none" stroke="#ffb25a" stroke-width="1.2" opacity=".4"/>
   </svg>`;
 }
