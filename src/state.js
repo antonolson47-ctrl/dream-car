@@ -9,7 +9,8 @@ import { aprFloor, aprOpen, floorPrice, openPrice } from './finance.js';
 import { clamp } from './format.js';
 
 export const state = {
-  screen: 'intro',
+  screen: 'story',
+  card: 0,
   credit: {
     score: null,
     cosign: false,
@@ -95,6 +96,7 @@ export function resetAll() {
   state.grade = null;
   state.studioNote = '';
   state.gradeCue = false;
+  state.card = 0;
 }
 
 export function loadLastGrade() {

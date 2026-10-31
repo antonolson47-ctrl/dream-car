@@ -17,6 +17,7 @@ import {
 import { aprFloor, aprOpen, floorPrice, monthlyTakeHome, openPrice, ownershipCost, paymentZone, weeklyFromMonthly } from './finance.js';
 import { esc, money, moneyExact, pct } from './format.js';
 import { vinnyFace, rickyFace } from './portraits.js';
+import { goalStoryArt, rickyStoryArt, vinnyStoryArt } from './story-art.js';
 import { effectiveScore, ensureBuild, ensureDeal, getCar, state } from './state.js';
 import { celebrationCard } from './fx.js';
 import { salesmanMood } from './pressure.js';
@@ -38,11 +39,13 @@ export function render() {
   const locked = state.screen === 'studio' || state.screen === 'negotiate';
   app.classList.toggle('is-lock', locked);
   const hud = document.getElementById('hud');
-  hud.hidden = state.screen === 'intro';
-  if (state.screen !== 'intro') renderHud();
+  const bare = state.screen === 'intro' || state.screen === 'story';
+  hud.hidden = bare;
+  if (!bare) renderHud();
   else document.getElementById('drawer').hidden = true;
   const screen = document.getElementById('screen');
   const views = {
+    story: storyScreen,
     intro: introScreen,
     credit: creditScreen,
     lot: lotScreen,
@@ -375,6 +378,52 @@ function drawerHTML() {
     </ul>
     <p class="fine">About ${money(PLAYER.savings)} in savings. A chunk of it can be the down payment. Leave roughly ${money(SAVINGS_RESERVE)} — two months of bills — and do not blow the pile on a spoiler.</p>
   </div>`;
+}
+
+const STORY = [
+  {
+    eyebrow: 'In your corner',
+    kicker: 'Vinny “Numbers” Caputo',
+    title: 'Your buddy at the desk',
+    body: 'He counts out loud so you do not have to smile on cue. Warm, loud, Jersey to the bone. He is on your side of the table.',
+    art: vinnyStoryArt,
+  },
+  {
+    eyebrow: 'Across the table',
+    kicker: 'Ricky Falco',
+    title: 'The smile comes first',
+    body: 'Falco Motors. He will call you pal and talk monthly until the price disappears. A little sleazy. Very good at the part you came here to win.',
+    art: rickyStoryArt,
+  },
+  {
+    eyebrow: 'Why you came',
+    kicker: 'The job',
+    title: 'Beat the desk',
+    body: 'Knock the price down. Get a fair trade. Take the rate your score earned. Leave the week able to breathe, then take the keys.',
+    art: goalStoryArt,
+  },
+];
+
+function storyScreen() {
+  const card = STORY[state.card] || STORY[0];
+  const last = state.card >= STORY.length - 1;
+  const replay = !!state.lastGrade;
+  return `<section class="story">
+    <p class="eyebrow">${esc(card.eyebrow)} · ${state.card + 1} of ${STORY.length}</p>
+    <button type="button" class="story-card" data-action="story-next" aria-label="${esc(card.title)}">
+      <div class="story-art">${card.art()}</div>
+      <div class="story-copy">
+        <span class="story-kicker">${esc(card.kicker)}</span>
+        <h1>${esc(card.title)}</h1>
+        <p>${esc(card.body)}</p>
+      </div>
+    </button>
+    <div class="story-foot">
+      <div class="story-dots" aria-hidden="true">${STORY.map((_, i) => `<i class="${i === state.card ? 'is-on' : ''}"></i>`).join('')}</div>
+      <button type="button" class="btn primary xl" data-action="story-next">${last ? 'Continue' : 'Next'}</button>
+      ${replay ? '<button type="button" class="btn ghost" data-action="story-skip">Skip</button>' : ''}
+    </div>
+  </section>`;
 }
 
 function introScreen() {
