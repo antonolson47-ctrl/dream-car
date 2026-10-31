@@ -1,3 +1,5 @@
+import rickyStoryUrl from './assets/ricky-story.jpg';
+
 export function vinnyFace() {
   return `
     <svg class="face vinny-face" viewBox="0 0 80 96" aria-hidden="true">
@@ -27,16 +29,5 @@ export function vinnyFace() {
 }
 
 export function rickyFace() {
-  return `
-    <svg class="face" viewBox="0 0 80 80" aria-hidden="true">
-      <circle cx="40" cy="40" r="40" fill="#102033"/>
-      <circle cx="40" cy="46" r="23" fill="#f0c39a"/>
-      <path d="M16 42c4-18 14-26 24-26s20 8 24 24c-8-10-16-12-24-12s-16 3-24 14z" fill="#1b1a17"/>
-      <path d="M28 44c1-2 4-3 6-1" fill="none" stroke="#2a211c" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M46 43c2-2 5-1 6 2" fill="none" stroke="#2a211c" stroke-width="1.6" stroke-linecap="round"/>
-      <path d="M32 58c4 5 12 5 16 0" fill="none" stroke="#9a3d3d" stroke-width="1.8" stroke-linecap="round"/>
-      <path d="M34 56c2 2 4 2 6 1" fill="#fff" opacity=".85"/>
-      <ellipse cx="33" cy="36" rx="6" ry="3" fill="#fff" opacity=".35"/>
-      <path d="M22 72c8 6 28 6 36-2v10H20z" fill="#d7e4f2"/>
-    </svg>`;
+  return `<img class="face" src="${rickyStoryUrl}" alt="">`;
 }
