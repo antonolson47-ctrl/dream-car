@@ -91,9 +91,9 @@ function reactDesk(car, build, deal, before, source) {
 }
 
 function playGrade(letter) {
-  const duo = letter === 'A+' || letter === 'A';
   const intensity = letter === 'A+' ? 3 : letter === 'A' ? 2 : letter === 'B' ? 1 : 0;
-  if (intensity) celebrate({ intensity, duo });
+  // The duo stays in the grade page itself. The overlay is for the desk fireworks.
+  if (intensity) celebrate({ intensity, duo: false });
   playSounds(() => {
     if (letter === 'A+' || letter === 'A') audio.fanfare(letter === 'A+' ? 1 : 0.75);
     else if (letter === 'B') audio.cheer();

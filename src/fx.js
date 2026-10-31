@@ -63,7 +63,7 @@ function showDuo(on) {
   hideTimer = setTimeout(() => {
     duo.hidden = true;
     duo.innerHTML = '';
-  }, 3600);
+  }, 9000);
 }
 
 function flash() {
@@ -167,6 +167,10 @@ function loop() {
   ctx.clearRect(0, 0, width, height);
 }
 
+export function celebrationCard() {
+  return duoCard();
+}
+
 function duoCard() {
   return `<div class="duo-card">
     <p class="duo-kicker">Skree &amp; Dumpling</p>
@@ -177,7 +181,8 @@ function duoCard() {
 
 /** Original cartoon duo. Exaggerated, not a likeness of any named character. */
 function duoSVG() {
-  return `<svg class="duo-art" viewBox="0 0 360 148" aria-hidden="true">
+  return `<svg class="duo-art" viewBox="0 0 360 176" aria-hidden="true">
+    <g transform="translate(180 86) scale(1.32) translate(-180 -78)">
     <g class="duo-skree">
       <path d="M48 118c8-28 10-46 14-58" fill="none" stroke="#1a120c" stroke-width="4" stroke-linecap="round"/>
       <path d="M92 116c-6-30-4-48-2-60" fill="none" stroke="#1a120c" stroke-width="4" stroke-linecap="round"/>
@@ -211,6 +216,7 @@ function duoSVG() {
       <rect x="246" y="100" width="8" height="8" fill="#fffdf6" stroke="#1a120c" stroke-width="1.5"/>
       <path d="M210 96c-6 8-2 14 6 12" fill="#ff8f88" stroke="#1a120c" stroke-width="2"/>
       <path d="M294 98c6 8 2 12-6 10" fill="#ff8f88" stroke="#1a120c" stroke-width="2"/>
+    </g>
     </g>
   </svg>`;
 }
