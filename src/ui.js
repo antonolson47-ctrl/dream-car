@@ -18,8 +18,11 @@ import { aprFloor, aprOpen, floorPrice, monthlyTakeHome, openPrice, ownershipCos
 import { esc, money, moneyExact, pct } from './format.js';
 import { vinnyFace, rickyFace } from './portraits.js';
 import { effectiveScore, ensureBuild, ensureDeal, getCar, state } from './state.js';
+import { salesmanMood } from './pressure.js';
 import { askVinny, buildQuoteInput, cosignLine, creditIntro, creditResult, deskTip, rickyLine, scoreBand, studioTip, tcoLine } from './vinny.js';
 import { audio } from './audio.js';
+
+const WHINE = ['', '', 'getting misty', 'openly suffering', 'tragic little noises'];
 
 const STEPS = [
   { id: 'credit', label: 'Credit' },
@@ -70,7 +73,7 @@ export function renderHud() {
         <span class="k">${score ? (state.credit.cosign ? 'With Ma' : 'Credit') : 'Pay'}</span>
         <span class="v">${score ? score : '$1,010'}</span>
       </button>
-      <button type="button" class="icon-btn ${audio.on ? 'is-on' : ''}" data-action="audio" aria-label="${audio.on ? 'Mute the violin' : 'Play the violin'}" aria-pressed="${audio.on}">
+      <button type="button" class="icon-btn ${audio.on ? 'is-on' : ''}" data-action="audio" aria-label="${audio.on ? 'Mute sounds' : 'Play sounds'}" aria-pressed="${audio.on}">
         ${noteIcon()}
       </button>
     </div>
@@ -85,7 +88,7 @@ export function syncAudioButton() {
   if (!btn) return;
   btn.classList.toggle('is-on', audio.on);
   btn.setAttribute('aria-pressed', String(audio.on));
-  btn.setAttribute('aria-label', audio.on ? 'Mute the violin' : 'Play the violin');
+  btn.setAttribute('aria-label', audio.on ? 'Mute sounds' : 'Play sounds');
 }
 
 export function toggleDrawer() {
@@ -126,7 +129,7 @@ export function closeDrawer() {
   if (drawer) drawer.hidden = true;
 }
 
-export function patchStudio() {
+export function patchStudio({ options = false } = {}) {
   const car = getCar();
   const build = ensureBuild(car);
   const priced = priceBuild(car, build);
@@ -142,11 +145,16 @@ export function patchStudio() {
     btn.setAttribute('aria-pressed', String(on));
   });
   setText('paint-label', paint.price ? `${paint.name} · +${money(paint.price)}` : paint.name);
-  syncOptButtons(build);
   syncViewDots();
   setText('dock-price', money(priced.total));
-  setText('dock-sub', `${money(priced.msrp)} car · ${money(priced.options)} options · ${money(priced.warranty)} warranty`);
-  setText('vinny-tip-text', studioTip(car, build));
+  setText('dock-sub', dockSub(priced));
+  setText('vinny-tip-text', state.studioNote || studioTip(car, build));
+  if (options) {
+    const mount = document.getElementById('options');
+    if (mount) mount.innerHTML = optionsHTML(car, build);
+    const cart = document.getElementById('build-cart');
+    if (cart) cart.innerHTML = cartInner(car, build);
+  }
   const hero = document.getElementById('hero');
   hero?.classList.toggle('is-spinning', state.spinning);
   const spin = document.querySelector('[data-action="spin"]');
@@ -165,7 +173,7 @@ export function patchCategory() {
     btn.classList.toggle('is-on', btn.dataset.cat === state.category);
   });
   document.getElementById('studio-scroll')?.scrollTo(0, 0);
-  setText('vinny-tip-text', studioTip(car, ensureBuild(car)));
+  setText('vinny-tip-text', state.studioNote || studioTip(car, ensureBuild(car)));
 }
 
 export function toggleTopClass() {
@@ -174,7 +182,7 @@ export function toggleTopClass() {
   svg?.classList.toggle('is-down', build.topDown);
   const top = document.querySelector('[data-action="top"]');
   if (top) top.textContent = build.topDown ? 'Raise the top' : 'Drop the top';
-  setText('vinny-tip-text', studioTip(getCar(), build));
+  setText('vinny-tip-text', state.studioNote || studioTip(getCar(), build));
 }
 
 export function patchDesk({ sliders = false } = {}) {
@@ -187,7 +195,8 @@ export function patchDesk({ sliders = false } = {}) {
   setText('apr-readout', `${deal.apr.toFixed(2)}%`);
   setText('check-readout', `${money(deal.downChecking)} down · ${money(PLAYER.checking - deal.downChecking)} left`);
   setText('save-readout', savingsReadout(deal.downSavings));
-  setText('ricky-line', rickyLine(car, deal));
+  setText('ricky-line', rickyLine(car, deal, build));
+  syncRicky(car, build, deal);
   setText('vinny-desk-text', state.advice || deskTip(car, deal, q));
   setText('dock-pay', money(q.payment, true));
   const zone = paymentZone(q.paymentShare);
@@ -269,14 +278,50 @@ function setText(id, text) {
   el.classList.add('pop');
 }
 
-function syncOptButtons(build) {
-  document.querySelectorAll('.opt').forEach((btn) => {
-    const on = btn.dataset.mode === 'single'
-      ? build.single[btn.dataset.group] === btn.dataset.id
-      : (build.multi[btn.dataset.group] || []).includes(btn.dataset.id);
-    btn.classList.toggle('is-on', on);
-    btn.setAttribute('aria-pressed', String(on));
-  });
+function syncRicky(car, build, deal) {
+  const mood = salesmanMood(car, deal, build);
+  const ricky = document.getElementById('ricky');
+  if (ricky) ricky.dataset.stress = String(mood.level);
+  const fill = document.getElementById('margin-fill');
+  if (fill) fill.style.width = `${Math.max(8, Math.round((1 - Math.min(1, mood.heat)) * 100))}%`;
+  const whine = document.getElementById('ricky-whine');
+  if (whine) {
+    const label = WHINE[mood.level] || '';
+    whine.textContent = label;
+    whine.hidden = !label;
+  }
+}
+
+export function flinchRicky(level) {
+  const el = document.getElementById('ricky');
+  if (!el) return;
+  el.classList.remove('is-wailing');
+  void el.offsetWidth;
+  el.classList.add('is-wailing');
+  const yelp = document.getElementById('ricky-yelp');
+  if (!yelp) return;
+  const words = ['nnngh', 'augh', 'my margin', 'wahhh', 'nooo'];
+  yelp.textContent = words[Math.min(words.length - 1, Math.max(0, (level || 2) - 1))];
+  clearTimeout(flinchRicky.timer);
+  flinchRicky.timer = setTimeout(() => {
+    yelp.textContent = '';
+    el.classList.remove('is-wailing');
+  }, 900);
+}
+
+export function flashWins(axes) {
+  for (const axis of axes) {
+    const seed = axis === 'term'
+      ? document.querySelector('[data-action="term"]')
+      : axis === 'warranty'
+        ? document.querySelector('[data-warranty]')
+        : document.querySelector(`[data-lever="${axis}"]`);
+    const el = seed?.closest('.lever');
+    if (!el) continue;
+    el.classList.remove('is-win');
+    void el.offsetWidth;
+    el.classList.add('is-win');
+  }
 }
 
 function syncViewDots() {
@@ -494,6 +539,7 @@ function studioScreen() {
       </div>
     </div>
     <div class="studio-scroll" id="studio-scroll">
+      <section class="cart" id="build-cart">${cartInner(car, build)}</section>
       <div id="options">${optionsHTML(car, build)}</div>
       <div class="vinny studio-vinny">
         ${vinnyFace()}
@@ -507,7 +553,7 @@ function studioScreen() {
       <div>
         <span class="k">Build price</span>
         <strong id="dock-price">${money(priced.total)}</strong>
-        <small id="dock-sub">${money(priced.msrp)} car · ${money(priced.options)} options · ${money(priced.warranty)} warranty</small>
+        <small id="dock-sub">${dockSub(priced)}</small>
       </div>
       <button type="button" class="btn primary" data-action="to-desk">See Ricky</button>
     </div>
@@ -520,25 +566,74 @@ function optionsHTML(car, build) {
   return groups.map((group) => `
     <section class="group">
       <h3>${esc(group.label)}</h3>
+      <p class="fine">${group.mode === 'multi' ? 'Add more than one. They stack, and every one lands in the price.' : 'Pick one. This part of the car only wears a single choice.'}</p>
       <div class="opts">
         ${group.options.map((option) => optionRow(group, option, build)).join('')}
       </div>
     </section>`).join('');
 }
 
+function dockSub(priced) {
+  const cartCount = priced.lines.filter((line) => line.price > 0).length;
+  const cart = cartCount ? ` · ${cartCount} in the cart` : '';
+  return `${money(priced.msrp)} car · ${money(priced.options)} options · ${money(priced.warranty)} warranty${cart}`;
+}
+
+function cartInner(car, build) {
+  const priced = priceBuild(car, build);
+  const items = priced.lines.filter((line) => line.price > 0);
+  const added = items.reduce((sum, line) => sum + line.price, 0);
+  if (!items.length) {
+    return `<p class="cart-empty">Nothing extra on the car yet. Some racks stack. A roof, a set of wheels, a warranty: one each.</p>`;
+  }
+  return `<header class="cart-top">
+      <h3>On the car</h3>
+      <strong id="cart-total">${money(added)}</strong>
+    </header>
+    <ul class="cart-list">
+      ${items.map((line) => `<li>
+        <span>${esc(line.name)}</span>
+        <b>${money(line.price)}</b>
+        <button type="button" class="trash" data-action="cart-remove" data-group="${esc(line.group)}" data-id="${esc(line.id)}" aria-label="Remove ${esc(line.name)} from cart" title="Remove from cart">${trashIcon()}</button>
+      </li>`).join('')}
+    </ul>
+    <p class="fine">Options ${money(priced.options)} · warranty ${money(priced.warranty)}. Same numbers as the dock.</p>`;
+}
+
 function optionRow(group, option, build) {
   const on = group.mode === 'single'
     ? build.single[group.id] === option.id
     : (build.multi[group.id] || []).includes(option.id);
+  const isDefault = group.mode === 'single' && option.id === group.options[0].id;
   const price = option.price === 0 ? 'Included' : `+${money(option.price)}`;
-  return `<button type="button" class="opt ${on ? 'is-on' : ''}" data-action="opt" data-group="${group.id}" data-id="${option.id}" data-mode="${group.mode}" aria-pressed="${on}">
-    <span class="opt-mark" aria-hidden="true"></span>
-    <span class="opt-copy">
+  let action = '';
+  if (group.mode === 'multi') {
+    action = on
+      ? `${trashButton(group.id, option)}<span class="on-car">In the cart</span>`
+      : `<button type="button" class="btn tiny cart" data-action="cart-add" data-group="${group.id}" data-id="${option.id}">Add to cart</button>`;
+  } else if (on && isDefault) {
+    action = '<span class="on-car">On the car</span>';
+  } else if (on) {
+    action = `${trashButton(group.id, option)}<span class="on-car">On the car</span>`;
+  } else {
+    action = `<button type="button" class="btn tiny" data-action="choose" data-group="${group.id}" data-id="${option.id}">Choose</button>`;
+  }
+  return `<article class="opt ${group.mode} ${on ? 'is-on' : ''}">
+    <div class="opt-copy">
       <span class="opt-name">${esc(option.name)}</span>
       <span class="opt-blurb">${esc(option.blurb)}</span>
-    </span>
+    </div>
     <span class="opt-price">${price}</span>
-  </button>`;
+    <div class="opt-actions">${action}</div>
+  </article>`;
+}
+
+function trashButton(groupId, option) {
+  return `<button type="button" class="trash" data-action="cart-remove" data-group="${groupId}" data-id="${option.id}" aria-label="Remove ${esc(option.name)} from cart" title="Remove from cart">${trashIcon()}</button>`;
+}
+
+function trashIcon() {
+  return `<svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M9 3h6l1 2h5v2H3V5h5l1-2zm1 6h2v9h-2V9zm4 0h2v9h-2V9zM7 9h2v9H7V9z"/><path fill="currentColor" d="M6 7h12l-1 13H7L6 7z" opacity=".35"/></svg>`;
 }
 
 function deskScreen() {
@@ -551,13 +646,26 @@ function deskScreen() {
   const earned = aprFloor(deal.effectiveScore);
   const aprMax = aprOpen(earned);
   const warranty = groupsFor(car.id).find((group) => group.id === 'warranty');
+  const mood = salesmanMood(car, deal, build);
+  const margin = Math.max(8, Math.round((1 - Math.min(1, mood.heat)) * 100));
+  const whine = WHINE[mood.level] || '';
   return `<section class="desk">
     <div class="desk-scroll">
-      <div class="ricky">
-        ${rickyFace()}
+      <div class="ricky" id="ricky" data-stress="${mood.level}">
+        <div class="ricky-face">
+          ${rickyFace()}
+          <span class="sweat" aria-hidden="true"></span>
+          <span class="sweat b" aria-hidden="true"></span>
+        </div>
         <div>
           <span class="who">Ricky Falco · Falco Motors</span>
-          <p id="ricky-line">${esc(rickyLine(car, deal))}</p>
+          <p id="ricky-line" aria-live="polite">${esc(rickyLine(car, deal, build))}</p>
+          <p id="ricky-whine" class="whine" ${whine ? '' : 'hidden'}>${esc(whine)}</p>
+          <p id="ricky-yelp" class="yelp" aria-hidden="true"></p>
+        </div>
+        <div class="margin-meter">
+          <span>His margin</span>
+          <div class="margin-track"><i id="margin-fill" style="width:${margin}%"></i></div>
         </div>
       </div>
       <p class="desk-car">${esc(car.name)} · build ${money(priced.total)} before tax</p>
@@ -767,10 +875,32 @@ function gradeScreen() {
   const q = grade.quote;
   const weak = grade.score < 80;
   const tone = grade.letter.startsWith('A') || grade.letter === 'B' ? 'good' : grade.letter === 'C' ? 'mid' : 'bad';
-  return `<section class="grade">
+  const moodClass = grade.letter === 'A+' ? 'win-max'
+    : grade.letter === 'A' ? 'win-high'
+      : grade.letter === 'B' ? 'win-mid'
+        : grade.letter === 'C' ? 'win-low'
+          : grade.letter === 'D' ? 'fail-low' : 'fail-max';
+  const bits = grade.letter === 'A+' ? 26 : grade.letter === 'A' ? 18 : grade.letter === 'B' ? 12 : grade.letter === 'C' ? 5 : 0;
+  const confetti = bits
+    ? `<div class="confetti" aria-hidden="true">${Array.from({ length: bits }, (_, i) => `<i style="--i:${i}"></i>`).join('')}</div>`
+    : '';
+  const stamp = grade.letter === 'A+' || grade.letter === 'A'
+    ? '<p class="cameo-note">Skree &amp; Dumpling heard.</p>'
+    : grade.letter === 'B'
+      ? '<p class="grade-note">A modest cheer.</p>'
+      : grade.letter === 'C'
+        ? '<p class="grade-note">A small clap.</p>'
+        : grade.letter === 'F'
+          ? '<p class="wah-label">Wah-wah-wah.</p>'
+          : grade.letter === 'D'
+            ? '<p class="wah-label">Wah-wah.</p>'
+            : '';
+  return `<section class="grade ${moodClass}">
+    ${confetti}
     <p class="eyebrow">${esc(car.name)} · Falco Motors</p>
     <div class="letter tone-${tone}">${esc(grade.letter)}</div>
     <h1>${esc(grade.title)}</h1>
+    ${stamp}
     <p class="score-num">${grade.score} out of 100</p>
     ${bubble(grade.narrative)}
     ${tcoHTML(car, q)}

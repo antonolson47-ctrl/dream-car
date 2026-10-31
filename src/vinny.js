@@ -7,6 +7,7 @@ import {
 } from './data.js';
 import { aprFloor, floorPrice, openPrice, paymentZone, quote } from './finance.js';
 import { money, pct } from './format.js';
+import { salesmanMood } from './pressure.js';
 
 export function scoreBand(score) {
   if (score >= 800) return { id: 'excellent', label: 'Excellent', line: 'Cheap money. Do not waste it on a stupid car.' };
@@ -78,7 +79,43 @@ export function studioTip(car, build) {
   return 'Every option has a price because every option lands in the payment. If you will not notice it on a Tuesday, leave it in the rack.';
 }
 
-export function rickyLine(car, deal) {
+const PUSH_LINES = {
+  1: [
+    'A little off the top. My manager is going to look at me like I lost a shoe.',
+    'You want more for the jalopy. I have to call a man who already sighs when he sees my number.',
+    'The rate too? The bank and I had a quiet arrangement. Now it is loud.',
+    'I can move. I am moving. Please notice that I am moving and be a person about it.',
+  ],
+  2: [
+    'Price and the trade. You are doing a thing. I can feel the thing. I do not like the thing.',
+    'Every slide takes a bite out of my commission. I had plans. Small plans. Lunch plans.',
+    'You keep asking. I am smiling with my mouth only. The rest of me filed a complaint.',
+    'Shorter term, lower rate, nicer trade. Pick a hobby that is not my paycheck.',
+  ],
+  3: [
+    'I am wheezing in a professional way. That sound was my margin leaving the building.',
+    'Uncle. Not the family kind. The kind where I stare at a ceiling tile and give up.',
+    'I am going to make a small tragic noise. Please pretend it was the chair.',
+    'You touched every lever. I am one salesman and I already ate.',
+  ],
+  4: [
+    'I am a puddle in a clean shirt. Take the number before I start charging you for tissues.',
+    'This is a very polite robbery. I am the one saying please. The please is crying.',
+    'Ask for one more nickel and I will honk. Not the car. Me. A honk of grief.',
+    'My manager sent a skull. I do not know what it means and I am afraid to ask.',
+  ],
+};
+
+function pushedLine(level, deal) {
+  const list = PUSH_LINES[Math.max(1, Math.min(4, level))];
+  const salt = (deal.pushes || 0) + Math.round((deal.trade || 0) / 100);
+  return list[Math.abs(salt) % list.length];
+}
+
+export function rickyLine(car, deal, build) {
+  const mood = salesmanMood(car, deal, build);
+  if (mood.level >= 1) return pushedLine(mood.level, deal);
+
   const open = openPrice(car);
   const floor = floorPrice(car);
   const priceSpan = Math.max(1, open - floor);
@@ -103,11 +140,21 @@ export function rickyLine(car, deal) {
   return 'I can move a little. Do not make me get emotional. I just had lunch.';
 }
 
+function withWhine(car, deal, text) {
+  const mood = salesmanMood(car, deal);
+  if (mood.level < 2) return text;
+  const aside = mood.level >= 4
+    ? 'Ignore the tragic noises. They are not a counteroffer.'
+    : 'He is whining because the number is getting fair. Whining is theater.';
+  return `${text} ${aside}`;
+}
+
 export function deskTip(car, deal, q) {
   const floor = floorPrice(car);
   const open = openPrice(car);
   const earned = aprFloor(deal.effectiveScore);
   const zone = paymentZone(q.paymentShare);
+  const mood = salesmanMood(car, deal);
 
   if ((deal.downChecking + deal.downSavings) > q.otd + 1 && q.financed === 0) {
     return 'You brought more cash than the car costs. Put the extra back. A cash deal can still be a bad price.';
@@ -130,10 +177,10 @@ export function deskTip(car, deal, q) {
     return 'You are about to hand Ricky the checking account. Rent does not care how the car smells. Leave yourself a month of life.';
   }
   if (deal.price <= floor + 50 && deal.trade >= 5000 && deal.apr <= earned + 0.05 && zone === 'ok' && down >= 2000) {
-    return 'Now we are talking. Price is at the bone, the jalopy got respect, the rate matches your score, and you put real money down. Shake before he changes his mind.';
+    return withWhine(car, deal, 'Now we are talking. Price is at the bone, the jalopy got respect, the rate matches your score, and you put real money down. Shake before he changes his mind.');
   }
   if (deal.price <= floor + 50 && deal.trade >= 5000 && deal.apr <= earned + 0.05 && zone === 'ok') {
-    return 'Price, trade, and rate are clean. You are still light on the down payment. A chunk of that savings is for this. Leave about two months of bills, and put some of the rest on the hood before depreciation eats you in the street.';
+    return withWhine(car, deal, 'Price, trade, and rate are clean. You are still light on the down payment. A chunk of that savings is for this. Leave about two months of bills, and put some of the rest on the hood before depreciation eats you in the street.');
   }
   if (deal.price >= open - 50) {
     return 'You are still sitting on his opening number. That number has a markup in it. Slide it toward you. He expects you to.';
@@ -157,7 +204,12 @@ export function deskTip(car, deal, q) {
     return 'Zero down feels clever until the tires hit the street. The car is worth less immediately, and the loan is still the whole thing. Fifteen thousand in savings is partly for this. Keep about two months of bills. Use some of the rest.';
   }
   if (deal.downSavings >= 1500 && savingsLeft >= SAVINGS_RESERVE) {
-    return `${money(deal.downSavings)} from savings onto the down payment, about ${money(savingsLeft)} still sitting there. Two months of bills is roughly ${money(SAVINGS_RESERVE)}. That is what a piece of the pile is for. Better than rolling out with nothing down.`;
+    return withWhine(car, deal, `${money(deal.downSavings)} from savings onto the down payment, about ${money(savingsLeft)} still sitting there. Two months of bills is roughly ${money(SAVINGS_RESERVE)}. That is what a piece of the pile is for. Better than rolling out with nothing down.`);
+  }
+  if (mood.level >= 2) {
+    return mood.level >= 4
+      ? 'He is making sounds. That is not a discount and it is not a threat. If the week still works, hold the bone. If the week does not, a pretty surrender is still the wrong car.'
+      : 'Hear him shrink. That is margin, not a reason to give one back. Ask for the next number you came in for, then read the week.';
   }
   return `The week still has air in it, about ${money(q.weeklyLeft)} after the life you already live. That is how you stay a person, not a payment.`;
 }
