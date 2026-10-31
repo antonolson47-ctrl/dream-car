@@ -18,6 +18,7 @@ import { aprFloor, aprOpen, floorPrice, monthlyTakeHome, openPrice, ownershipCos
 import { esc, money, moneyExact, pct } from './format.js';
 import { vinnyFace, rickyFace } from './portraits.js';
 import { effectiveScore, ensureBuild, ensureDeal, getCar, state } from './state.js';
+import { celebrationCard } from './fx.js';
 import { salesmanMood } from './pressure.js';
 import { askVinny, buildQuoteInput, cosignLine, creditIntro, creditResult, deskTip, rickyLine, scoreBand, studioTip, tcoLine } from './vinny.js';
 import { audio } from './audio.js';
@@ -901,6 +902,7 @@ function gradeScreen() {
     <div class="letter tone-${tone}">${esc(grade.letter)}</div>
     <h1>${esc(grade.title)}</h1>
     ${stamp}
+    ${grade.letter === 'A+' || grade.letter === 'A' ? `<div class="grade-duo">${celebrationCard()}</div>` : ''}
     <p class="score-num">${grade.score} out of 100</p>
     ${bubble(grade.narrative)}
     ${tcoHTML(car, q)}
@@ -918,7 +920,7 @@ function gradeScreen() {
     <div class="stack">
       <button type="button" class="btn ${weak ? 'primary' : 'ghost'}" data-action="tweak">Tweak this deal</button>
       <button type="button" class="btn ${weak ? 'ghost' : 'primary'}" data-action="another">Shop another car</button>
-      <button type="button" class="btn text" data-action="restart">Start over</button>
+      <button type="button" class="btn ${weak ? 'text' : 'ghost'}" data-action="restart">Start over</button>
     </div>
   </section>`;
 }
