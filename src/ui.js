@@ -954,10 +954,12 @@ function gradeScreen() {
     ${grade.letter === 'A+' || grade.letter === 'A' ? `<div class="grade-duo">${celebrationCard()}</div>` : ''}
     <p class="score-num">${grade.score} out of 100</p>
     ${bubble(grade.narrative)}
+    <ul class="recap recap-lead">
+      <li><span>Out the door</span><b>${moneyExact(q.otd)}</b></li>
+    </ul>
     ${tcoHTML(car, q)}
     <ul class="recap">
       <li><span>Payment</span><b>${money(q.payment, true)}/mo</b></li>
-      <li><span>Out the door</span><b>${moneyExact(q.otd)}</b></li>
       <li><span>Financed</span><b>${moneyExact(q.financed)}</b></li>
       <li><span>Interest</span><b>${moneyExact(q.interest)}</b></li>
       <li><span>Term</span><b>${q.term} mo @ ${q.apr.toFixed(2)}%</b></li>
@@ -969,7 +971,8 @@ function gradeScreen() {
     <div class="stack">
       <button type="button" class="btn ${weak ? 'primary' : 'ghost'}" data-action="tweak">Tweak this deal</button>
       <button type="button" class="btn ${weak ? 'ghost' : 'primary'}" data-action="another">Shop another car</button>
-      <button type="button" class="btn ${weak ? 'text' : 'ghost'}" data-action="restart">Start over</button>
+      <p class="fine">This session is done.</p>
+      <button type="button" class="btn ghost" data-action="restart">Start again</button>
     </div>
   </section>`;
 }
