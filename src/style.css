@@ -547,8 +547,13 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
 .ricky {
   display: grid;
   grid-template-columns: 54px 1fr;
-  gap: 10px;
-  margin-bottom: 8px;
+  gap: 8px 10px;
+  flex: none;
+  z-index: 4;
+  margin: 0;
+  padding: 8px 14px 10px;
+  background: #0c0e14;
+  border-bottom: 1px solid var(--line);
 }
 .ricky p { line-height: 1.4; }
 .ricky-face { position: relative; width: 54px; height: 54px; }
@@ -567,9 +572,8 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
 .ricky[data-stress="3"] .sweat,
 .ricky[data-stress="4"] .sweat { opacity: 0.95; animation: drip 1.2s ease-in infinite; }
 .ricky[data-stress="4"] {
-  background: rgba(255, 143, 136, 0.08);
-  border-radius: 16px;
-  padding: 8px;
+  background: #2a1618;
+  border-bottom-color: rgba(255, 143, 136, 0.45);
 }
 .ricky.is-wailing { animation: whimper 0.45s ease; }
 .whine {
@@ -580,11 +584,11 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
   text-transform: uppercase;
 }
 .yelp {
-  min-height: 1.1em;
   color: var(--amber);
   font-family: var(--serif);
   font-size: 18px;
 }
+.yelp:empty { display: none; }
 .margin-meter { grid-column: 1 / -1; }
 .margin-meter span { color: var(--faint); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; }
 .margin-track {

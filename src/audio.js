@@ -122,9 +122,24 @@ class Soundtrack {
     comp.connect(this.master);
     this.master.connect(ctx.destination);
 
+    this.sfxLevel = 0.36;
+    this.musicLevel = 0.42;
     this.sfx = ctx.createGain();
-    this.sfx.gain.value = 0.36;
+    this.sfx.gain.value = this.sfxLevel;
     this.sfx.connect(ctx.destination);
+
+    // Ricky's cries sit on their own bus, louder than the register and the violin,
+    // with a limiter so the peak stays in the speaker instead of clipping.
+    this.cry = ctx.createGain();
+    this.cry.gain.value = 1;
+    const cryLimit = ctx.createDynamicsCompressor();
+    cryLimit.threshold.value = -3;
+    cryLimit.knee.value = 3;
+    cryLimit.ratio.value = 4;
+    cryLimit.attack.value = 0.002;
+    cryLimit.release.value = 0.08;
+    this.cry.connect(cryLimit);
+    cryLimit.connect(ctx.destination);
   }
 
   stop() {
@@ -313,16 +328,37 @@ class Soundtrack {
   }
 
   moan(level = 2) {
-    if (!this.ctx || !this.sfx) return;
+    if (!this.ctx || !this.cry) return;
     const t = this.ctx.currentTime;
     if (t - this.lastMoan < 0.82) return;
     this.lastMoan = t;
     const kind = (Math.max(1, level) + Math.floor(t * 8)) % 3;
-    if (kind === 0) this.wail(t, 420 - level * 16, 150, 0.42 + level * 0.04);
+    const dur = kind === 0 ? 0.42 + level * 0.04 : kind === 1 ? 0.54 : 0.55;
+    this.duckForCry(t, dur);
+    if (kind === 0) this.wail(t, 420 - level * 16, 150, dur);
     else if (kind === 1) {
       this.wail(t, 460, 280, 0.14);
-      this.wail(t + 0.16, 260, 120, 0.38);
-    } else this.wail(t, 240, 80, 0.55);
+      this.wail(t + 0.16, 260, 120, 0.4);
+    } else this.wail(t, 240, 80, dur);
+  }
+
+  duckForCry(time, dur) {
+    const sfx = this.sfx?.gain;
+    const music = this.master?.gain;
+    if (sfx) {
+      sfx.cancelScheduledValues(time);
+      sfx.setValueAtTime(sfx.value, time);
+      sfx.linearRampToValueAtTime(this.sfxLevel * 0.18, time + 0.03);
+      sfx.setValueAtTime(this.sfxLevel * 0.18, time + dur);
+      sfx.linearRampToValueAtTime(this.sfxLevel, time + dur + 0.2);
+    }
+    if (this.on && music) {
+      music.cancelScheduledValues(time);
+      music.setValueAtTime(music.value, time);
+      music.linearRampToValueAtTime(this.musicLevel * 0.28, time + 0.04);
+      music.setValueAtTime(this.musicLevel * 0.28, time + dur);
+      music.linearRampToValueAtTime(this.musicLevel, time + dur + 0.28);
+    }
   }
 
   fanfare(scale = 1) {
@@ -442,13 +478,13 @@ class Soundtrack {
     filter.frequency.exponentialRampToValueAtTime(380, time + dur * 0.55);
     filter.frequency.exponentialRampToValueAtTime(1200, time + dur);
     gain.gain.setValueAtTime(0.0001, time);
-    gain.gain.exponentialRampToValueAtTime(0.3, time + 0.045);
+    gain.gain.exponentialRampToValueAtTime(0.85, time + 0.04);
     gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
     osc.connect(filter);
     sub.connect(subGain);
     subGain.connect(filter);
     filter.connect(gain);
-    gain.connect(this.sfx);
+    gain.connect(this.cry);
     osc.start(time);
     sub.start(time);
     vib.start(time);

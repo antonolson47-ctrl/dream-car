@@ -650,24 +650,24 @@ function deskScreen() {
   const margin = Math.max(8, Math.round((1 - Math.min(1, mood.heat)) * 100));
   const whine = WHINE[mood.level] || '';
   return `<section class="desk">
-    <div class="desk-scroll">
-      <div class="ricky" id="ricky" data-stress="${mood.level}">
-        <div class="ricky-face">
-          ${rickyFace()}
-          <span class="sweat" aria-hidden="true"></span>
-          <span class="sweat b" aria-hidden="true"></span>
-        </div>
-        <div>
-          <span class="who">Ricky Falco · Falco Motors</span>
-          <p id="ricky-line" aria-live="polite">${esc(rickyLine(car, deal, build))}</p>
-          <p id="ricky-whine" class="whine" ${whine ? '' : 'hidden'}>${esc(whine)}</p>
-          <p id="ricky-yelp" class="yelp" aria-hidden="true"></p>
-        </div>
-        <div class="margin-meter">
-          <span>His margin</span>
-          <div class="margin-track"><i id="margin-fill" style="width:${margin}%"></i></div>
-        </div>
+    <div class="ricky" id="ricky" data-stress="${mood.level}">
+      <div class="ricky-face">
+        ${rickyFace()}
+        <span class="sweat" aria-hidden="true"></span>
+        <span class="sweat b" aria-hidden="true"></span>
       </div>
+      <div>
+        <span class="who">Ricky Falco · Falco Motors</span>
+        <p id="ricky-line" aria-live="polite">${esc(rickyLine(car, deal, build))}</p>
+        <p id="ricky-whine" class="whine" ${whine ? '' : 'hidden'}>${esc(whine)}</p>
+        <p id="ricky-yelp" class="yelp" aria-hidden="true"></p>
+      </div>
+      <div class="margin-meter">
+        <span>His margin</span>
+        <div class="margin-track"><i id="margin-fill" style="width:${margin}%"></i></div>
+      </div>
+    </div>
+    <div class="desk-scroll">
       <p class="desk-car">${esc(car.name)} · build ${money(priced.total)} before tax</p>
       <div id="pressure">${pressureBanner(q)}</div>
       <div id="budget-mount">${budgetHTML(q)}</div>
