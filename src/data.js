@@ -509,7 +509,7 @@ export function insuranceFor(car, build) {
 export const GLOSSARY = {
   credit: {
     title: 'Credit score',
-    body: 'Your credit score is a three-digit rumor the bank believes about you. Higher means cheaper money. This is not a moral score. It is a price tag on a loan. We rolled it. Now we live with the number, or we ask your mother.',
+    body: 'Your credit score is a three-digit rumor the bank believes about you. From lowest to highest, the reel runs 675 to 820. Higher means cheaper money. This is not a moral score. It is a price tag on a loan. We rolled it. Now we live with the number, or we ask your mother.',
   },
   cosigner: {
     title: 'Co-signer',
@@ -517,7 +517,7 @@ export const GLOSSARY = {
   },
   apr: {
     title: 'APR',
-    body: 'APR is the yearly price of borrowing, written like a percent. A six instead of an eight does not look like much on a sticker. On a long loan it is thousands. You are not just buying the car. You are renting the money.',
+    body: 'APR, Annual Percentage Rate, is the yearly price of borrowing, written like a percent. A six instead of an eight does not look like much on a sticker. On a long loan it is thousands. You are not just buying the car. You are renting the money.',
   },
   principal: {
     title: 'Principal',
