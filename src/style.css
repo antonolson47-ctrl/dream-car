@@ -236,6 +236,56 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
 }
 .bills li.total, .rows li.strong { font-weight: 650; color: var(--cream); }
 
+.story {
+  min-height: 100%;
+  display: flex;
+  flex-direction: column;
+  padding: calc(14px + var(--safe-top)) 16px calc(12px + var(--safe-bot));
+  gap: 10px;
+}
+.story-card {
+  flex: 1;
+  width: 100%;
+  min-height: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  color: inherit;
+  border-radius: 26px;
+  overflow: hidden;
+  border: 1px solid rgba(240, 215, 162, 0.38);
+  background:
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 178, 90, 0.16), transparent 60%),
+    #10131a;
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.45);
+  animation: story-in 0.38s ease;
+}
+.story-art {
+  flex: 1;
+  min-height: 180px;
+  background: #07080d;
+}
+.story-svg { width: 100%; height: 100%; display: block; }
+.story-copy { padding: 14px 16px 16px; }
+.story-copy h1 { font-size: clamp(30px, 8vw, 40px); margin: 2px 0 8px; }
+.story-copy p { color: var(--muted); line-height: 1.45; }
+.story-kicker {
+  color: var(--gold);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-size: 11px;
+  font-weight: 560;
+}
+.story-foot { display: flex; flex-direction: column; gap: 8px; }
+.story-dots { display: flex; justify-content: center; gap: 8px; }
+.story-dots i {
+  width: 7px;
+  height: 7px;
+  border-radius: 99px;
+  background: rgba(255, 255, 255, 0.22);
+}
+.story-dots i.is-on { width: 22px; background: var(--amber); }
 .intro {
   min-height: 100%;
   display: flex;
@@ -801,8 +851,8 @@ details summary { cursor: pointer; color: var(--gold); margin-top: 8px; }
 }
 .duo-yell { margin: 2px 0 0; font-family: var(--serif); font-size: 42px; font-weight: 720; line-height: 0.95; }
 .duo-art { width: 100%; height: auto; display: block; }
-.duo-skree { transform-origin: 70px 120px; animation: skree-flail 0.32s ease-in-out infinite; }
-.duo-dump { transform-origin: 252px 110px; animation: dump-bounce 0.48s ease-in-out infinite; }
+.duo-skree { transform-origin: 130px 200px; animation: skree-flail 0.28s ease-in-out infinite; }
+.duo-dump { transform-origin: 310px 190px; animation: dump-bounce 0.46s ease-in-out infinite; }
 .letter {
   font-family: var(--serif);
   font-weight: 720;
@@ -934,6 +984,10 @@ details summary { cursor: pointer; color: var(--gold); margin-top: 8px; }
 @keyframes duo-in {
   from { transform: translateY(36px) scale(0.86) rotate(-3deg); opacity: 0; }
   to { transform: none; opacity: 1; }
+}
+@keyframes story-in {
+  from { opacity: 0; transform: translateX(18px); }
+  to { opacity: 1; transform: none; }
 }
 @keyframes skree-flail {
   50% { transform: rotate(-6deg) translateY(-3px); }

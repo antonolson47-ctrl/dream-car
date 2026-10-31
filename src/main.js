@@ -37,6 +37,21 @@ import {
 
 let spinTimer = null;
 let dragX = null;
+let storyX = null;
+let suppressStoryClick = false;
+
+const STORY_LAST = 2;
+
+function advanceStory(dir) {
+  const next = state.card + dir;
+  if (next < 0) return;
+  if (next > STORY_LAST) {
+    goto('intro');
+    return;
+  }
+  state.card = next;
+  render();
+}
 
 function stopSpin() {
   state.spinning = false;
@@ -367,12 +382,21 @@ function onClick(event) {
       state.grade = null;
       goto('lot');
     },
+    'story-next': () => {
+      if (suppressStoryClick) {
+        suppressStoryClick = false;
+        return;
+      }
+      advanceStory(1);
+    },
+    'story-skip': () => goto('intro'),
     restart: () => {
       stopSpin();
       const last = state.lastGrade;
       resetAll();
       state.lastGrade = last;
-      goto('intro');
+      state.card = 0;
+      goto('story');
     },
   };
   if (run[action]) run[action]();
@@ -393,22 +417,37 @@ function onKey(event) {
   if (state.screen === 'lot' && (event.key === 'ArrowRight' || event.key === 'ArrowLeft')) {
     moveLot(event.key === 'ArrowRight' ? 1 : -1);
   }
+  if (state.screen === 'story' && (event.key === 'ArrowRight' || event.key === 'Enter')) advanceStory(1);
+  if (state.screen === 'story' && event.key === 'ArrowLeft') advanceStory(-1);
 }
 
 function onPointerDown(event) {
-  if (!event.target.closest('#hero')) return;
-  dragX = event.clientX;
+  if (event.target.closest('#hero')) dragX = event.clientX;
+  if (state.screen === 'story' && event.target.closest('.story') && !event.target.closest('[data-action="story-skip"]')) {
+    storyX = event.clientX;
+  }
 }
 
 function onPointerUp(event) {
-  if (dragX == null) return;
-  const dx = event.clientX - dragX;
-  dragX = null;
-  if (state.screen !== 'studio' || Math.abs(dx) < 36) return;
-  stopSpin();
-  state.hintSeen = true;
-  state.view = (state.view + (dx < 0 ? 1 : -1) + VIEWS.length) % VIEWS.length;
-  patchStudio();
+  if (dragX != null) {
+    const dx = event.clientX - dragX;
+    dragX = null;
+    if (state.screen === 'studio' && Math.abs(dx) >= 36) {
+      stopSpin();
+      state.hintSeen = true;
+      state.view = (state.view + (dx < 0 ? 1 : -1) + VIEWS.length) % VIEWS.length;
+      patchStudio();
+    }
+  }
+  if (storyX != null && state.screen === 'story') {
+    const dx = event.clientX - storyX;
+    storyX = null;
+    if (Math.abs(dx) >= 42) {
+      suppressStoryClick = true;
+      advanceStory(dx < 0 ? 1 : -1);
+      setTimeout(() => { suppressStoryClick = false; }, 0);
+    }
+  }
 }
 
 document.addEventListener('click', onClick);

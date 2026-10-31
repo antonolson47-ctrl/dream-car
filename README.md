@@ -6,6 +6,8 @@ The fun is the lot and the options. The lesson is hiding in the payment.
 
 ## Play
 
+Three cards come first: Vinny, Ricky, and the job. Tap or swipe through them, then the title. After you have finished a deal, Start over brings the cards back with a Skip.
+
 1. **The lot.** Your trade is a 1998 Cumberland Shadow, worth about **$4,500**. Checking is **$8,000**, savings **$15,000**, salary **$70,000** — about **$1,010 a week** after a plain tax estimate.
 2. **Credit.** Roll a score from 675 to 820. Most rolls land in the 700s. A thin score can ask Mom to co-sign (+50 to +75 on the rate quote). Tap **What is this?** any time Vinny should explain a word.
 3. **Four cars.** Stallion GT ($72,000), Harbor Hybrid ($29,000), Ironhorn 1500 ($52,000), Breeze Convertible ($38,000). No real brands.
@@ -44,6 +46,6 @@ npm run preview  # serve that build
 
 `base` is `./`, so `dist/` can sit on GitHub Pages or any static host, including a project subpath. Serve the folder. Don’t open `dist/index.html` as a bare file — the script is a module.
 
-The violin is an original loop synthesized in the browser (Web Audio). The register, the moans, the fireworks, and the grade trombone are synthesized the same way. Nothing on the soundtrack is a recording, a film theme, or a copied character. First tap starts it. The note button hushes the violin and the desk noises. A great grade brings in Skree and Dumpling, two original cartoons.
+The violin is an original loop synthesized in the browser (Web Audio). The register, the moans, the fireworks, and the grade trombone are synthesized the same way. Nothing on the soundtrack is a recording, a film theme, or a copied character. First tap starts it. The note button hushes the violin and the desk noises. A great grade brings in Skree and Dumpling, an original manic little dog and a blissed-out cat in an exaggerated 1990s cartoon register. Not named characters from television.
 
 No account, no server, no save except the last letter grade in `localStorage`.
