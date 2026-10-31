@@ -1,7 +1,9 @@
 import { BILLS_MONTHLY, CARS, GLOSSARY, GROUPS, JALOPY, PLAYER, freshBuild, groupsFor, priceBuild } from '../src/data.js';
-import { aprFloor, floorPrice, monthlyPayment, openPrice, ownershipCost, quote } from '../src/finance.js';
+import { aprFloor, aprOpen, floorPrice, monthlyPayment, openPrice, ownershipCost, quote } from '../src/finance.js';
 import { carSVG, jalopySVG } from '../src/car-art.js';
-import { gradeDeal } from '../src/vinny.js';
+import { addToCart, chooseOne, removeFromCart } from '../src/cart.js';
+import { applyPressure, isStrongDeal, salesmanMood, snapshotDeal } from '../src/pressure.js';
+import { gradeDeal, rickyLine } from '../src/vinny.js';
 import { rollScore } from '../src/state.js';
 
 function assert(cond, message) {
@@ -143,6 +145,56 @@ const deal = {
 };
 const grade = gradeDeal(harborCar, build, deal);
 assert(['A+', 'A', 'B'].includes(grade.letter), `expected a strong harbor grade, got ${grade.letter} (${grade.score})`);
+
+const stallionBuild = freshBuild(stallion);
+chooseOne(stallionBuild, 'roof', 'moon');
+chooseOne(stallionBuild, 'roof', 'pano');
+assert(stallionBuild.single.roof === 'pano', 'single choice replaces');
+assert(addToCart(stallionBuild, 'sport', 'spoiler'), 'spoiler added');
+assert(addToCart(stallionBuild, 'sport', 'stripes'), 'stripes added');
+assert(!addToCart(stallionBuild, 'sport', 'spoiler'), 'cart does not duplicate');
+assert(stallionBuild.multi.sport.length === 2, 'two sport parts stay on the car');
+let sportPriced = priceBuild(stallion, stallionBuild);
+const sportLines = sportPriced.lines.filter((line) => line.group === 'sport');
+assert(sportLines.length === 2, 'price rollup keeps every cart line');
+assert(sportPriced.options === 3400 + 750 + 1950, `stacked options ${sportPriced.options}`);
+assert(removeFromCart(stallion, stallionBuild, 'sport', 'stripes')?.id === 'stripes', 'remove one');
+assert(stallionBuild.multi.sport.includes('spoiler') && !stallionBuild.multi.sport.includes('stripes'), 'the other add-on stays');
+sportPriced = priceBuild(stallion, stallionBuild);
+assert(sportPriced.options === 3400 + 1950, 'rollup drops only the removed line');
+
+const harborCar2 = CARS.find((car) => car.id === 'harbor');
+const calm = {
+  price: openPrice(harborCar2),
+  trade: 3600,
+  apr: aprOpen(aprFloor(760)),
+  term: 72,
+  effectiveScore: 760,
+  pushes: 0,
+  warrantyOpened: 'none',
+  warrantySync: 'none',
+  bank: { price: 0, trade: 0, apr: 0 },
+  celebrated: false,
+};
+assert(salesmanMood(harborCar2, calm).level === 0, 'opening desk is calm');
+assert(rickyLine(harborCar2, calm).includes('taste') || rickyLine(harborCar2, calm).includes('lunch'), 'calm Ricky');
+const before = snapshotDeal(calm, { single: { warranty: 'none' } });
+calm.price -= 500;
+const nudged = applyPressure(harborCar2, { single: { warranty: 'none' } }, calm, before, snapshotDeal(calm, { single: { warranty: 'none' } }), 'nudge');
+assert(nudged.ching && nudged.axes.includes('price') && calm.pushes === 1, 'a price concession counts');
+const strong = {
+  ...calm,
+  price: floorPrice(harborCar2),
+  trade: 5400,
+  apr: aprFloor(760),
+  term: 60,
+  pushes: 8,
+};
+assert(isStrongDeal(harborCar2, strong), 'bone price, trade, and rate are a strong deal');
+const stressed = salesmanMood(harborCar2, strong);
+assert(stressed.level >= 3, `stacked deal should stress Ricky, level ${stressed.level}`);
+const stressedLine = rickyLine(harborCar2, strong, { single: { warranty: 'none' } });
+assert(/wheezing|Uncle|tragic|puddle|robbery|honk|skull|margin/i.test(stressedLine), stressedLine);
 
 console.log('finance, catalog, and art checks passed');
 console.log(`sample harbor payment $${sheet.payment.toFixed(2)} · grade ${grade.letter}`);

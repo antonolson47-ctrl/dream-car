@@ -28,6 +28,8 @@ export const state = {
   advice: '',
   grade: null,
   lastGrade: null,
+  studioNote: '',
+  gradeCue: false,
 };
 
 export function effectiveScore() {
@@ -59,6 +61,10 @@ export function ensureDeal(car = getCar()) {
       downChecking: 0,
       downSavings: 0,
       effectiveScore: score,
+      pushes: 0,
+      celebrated: false,
+      warrantyOpened: build.single.warranty,
+      bank: { price: 0, trade: 0, apr: 0 },
     };
   }
   const deal = state.deals[car.id];
@@ -87,6 +93,8 @@ export function resetAll() {
   state.sheet = null;
   state.advice = '';
   state.grade = null;
+  state.studioNote = '';
+  state.gradeCue = false;
 }
 
 export function loadLastGrade() {

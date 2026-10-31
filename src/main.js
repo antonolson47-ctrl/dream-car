@@ -1,12 +1,17 @@
 import { audio } from './audio.js';
 import { VIEWS } from './car-art.js';
+import { addToCart, chooseOne, optionById, removeFromCart } from './cart.js';
 import { TRADE } from './data.js';
 import { aprFloor, aprOpen, floorPrice, openPrice } from './finance.js';
-import { clamp } from './format.js';
+import { celebrate, clearCelebration, mountFx } from './fx.js';
+import { clamp, money } from './format.js';
+import { applyPressure, snapshotDeal } from './pressure.js';
 import {
   adviceText,
   closeDrawer,
   closeOverlay,
+  flashWins,
+  flinchRicky,
   openGlossary,
   patchCategory,
   patchDesk,
@@ -47,11 +52,55 @@ function goto(screen) {
   state.advice = screen === 'negotiate' ? state.advice : '';
   closeOverlay();
   closeDrawer();
+  if (screen !== 'grade') clearCelebration();
   if (screen === 'negotiate') ensureDeal();
   render();
   const main = document.getElementById('screen');
   if (main) main.scrollTop = 0;
   if (screen === 'lot') bindLot();
+  if (screen === 'grade' && state.grade && state.gradeCue) {
+    state.gradeCue = false;
+    playGrade(state.grade.letter);
+  }
+}
+
+function playSounds(play) {
+  if (state.soundPref === 'off') return;
+  const run = () => {
+    if (audio.ctx && audio.sfx) play();
+  };
+  if (audio.ctx && audio.ctx.state === 'running') run();
+  else audio.ensure().then(run).catch(() => {});
+}
+
+function reactDesk(car, build, deal, before, source) {
+  const after = snapshotDeal(deal, build);
+  const fx = applyPressure(car, build, deal, before, after, source);
+  if (fx.ching) flashWins(fx.axes);
+  if (fx.moan) flinchRicky(fx.mood.level);
+  if (fx.fireworks) celebrate({ intensity: 3, duo: true });
+  playSounds(() => {
+    if (fx.fireworks) {
+      audio.fanfare(1);
+      audio.chaChing();
+      return;
+    }
+    if (fx.ching) audio.chaChing();
+    if (fx.moan) audio.moan(fx.mood.level);
+  });
+}
+
+function playGrade(letter) {
+  const duo = letter === 'A+' || letter === 'A';
+  const intensity = letter === 'A+' ? 3 : letter === 'A' ? 2 : letter === 'B' ? 1 : 0;
+  if (intensity) celebrate({ intensity, duo });
+  playSounds(() => {
+    if (letter === 'A+' || letter === 'A') audio.fanfare(letter === 'A+' ? 1 : 0.75);
+    else if (letter === 'B') audio.cheer();
+    else if (letter === 'C') audio.spark();
+    else if (letter === 'D') audio.wah(1);
+    else audio.wah(2);
+  });
 }
 
 async function toggleAudio() {
@@ -112,6 +161,7 @@ function pick(id) {
   state.category = 'sound';
   state.view = 0;
   state.hintSeen = false;
+  state.studioNote = '';
   stopSpin();
   ensureBuild();
   goto('studio');
@@ -134,7 +184,9 @@ function toggleSpin() {
 
 function nudge(name) {
   const car = getCar();
+  const build = ensureBuild(car);
   const deal = ensureDeal(car);
+  const before = snapshotDeal(deal, build);
   if (name === 'price') deal.price = clamp(deal.price - 500, floorPrice(car), openPrice(car));
   if (name === 'trade') deal.trade = clamp(deal.trade + 200, TRADE.min, TRADE.max);
   if (name === 'apr') {
@@ -142,11 +194,15 @@ function nudge(name) {
     deal.apr = clamp(Math.round((deal.apr - 0.1) * 100) / 100, floor, aprOpen(floor));
   }
   state.advice = '';
+  reactDesk(car, build, deal, before, 'nudge');
   patchDesk({ sliders: true });
 }
 
 function onLever(el) {
-  const deal = ensureDeal();
+  const car = getCar();
+  const build = ensureBuild(car);
+  const deal = ensureDeal(car);
+  const before = snapshotDeal(deal, build);
   const value = Number(el.value);
   const name = el.dataset.lever;
   if (name === 'price') deal.price = value;
@@ -155,28 +211,51 @@ function onLever(el) {
   if (name === 'checking') deal.downChecking = value;
   if (name === 'savings') deal.downSavings = value;
   state.advice = '';
+  reactDesk(car, build, deal, before, 'slider');
   patchDesk();
 }
 
-function onOpt(btn) {
-  const build = ensureBuild();
-  const { group, id, mode } = btn.dataset;
-  if (mode === 'single') {
-    build.single[group] = id;
-  } else {
-    const list = build.multi[group] || [];
-    const index = list.indexOf(id);
-    if (index >= 0) list.splice(index, 1);
-    else list.push(id);
-    build.multi[group] = list;
-  }
-  patchStudio();
+function noteAdded(option) {
+  if (!option) return;
+  state.studioNote = option.tip || `${option.name} is on the car. It shows up in the build price.`;
+}
+
+function noteRemoved(option) {
+  if (!option) return;
+  const cost = option.price ? ` ${money(option.price)} comes off the build.` : '';
+  state.studioNote = `${option.name} is off the car.${cost}`;
+}
+
+function cartAdd(btn) {
+  const car = getCar();
+  const build = ensureBuild(car);
+  if (!addToCart(build, btn.dataset.group, btn.dataset.id)) return;
+  noteAdded(optionById(car, btn.dataset.group, btn.dataset.id));
+  patchStudio({ options: true });
+}
+
+function cartRemove(btn) {
+  const car = getCar();
+  const build = ensureBuild(car);
+  const removed = removeFromCart(car, build, btn.dataset.group, btn.dataset.id);
+  if (!removed) return;
+  noteRemoved(removed);
+  patchStudio({ options: true });
+}
+
+function chooseOpt(btn) {
+  const car = getCar();
+  const build = ensureBuild(car);
+  if (!chooseOne(build, btn.dataset.group, btn.dataset.id)) return;
+  noteAdded(optionById(car, btn.dataset.group, btn.dataset.id));
+  patchStudio({ options: true });
 }
 
 function shake() {
   const car = getCar();
   const grade = gradeDeal(car, ensureBuild(car), ensureDeal(car));
   state.grade = grade;
+  state.gradeCue = true;
   saveLastGrade(grade, car);
   goto('grade');
 }
@@ -221,12 +300,25 @@ function onClick(event) {
     'back-lot': () => goto('lot'),
     cat: () => {
       state.category = btn.dataset.cat;
+      state.studioNote = '';
       patchCategory();
     },
-    opt: () => onOpt(btn),
+    'cart-add': () => cartAdd(btn),
+    'cart-remove': () => cartRemove(btn),
+    choose: () => chooseOpt(btn),
     paint: () => {
-      ensureBuild().paint = btn.dataset.paint;
-      patchStudio();
+      const car = getCar();
+      const build = ensureBuild(car);
+      build.paint = btn.dataset.paint;
+      const color = car.colors.find((item) => item.id === build.paint);
+      if (color?.joke) {
+        state.studioNote = 'Gold flake. Seventy-five hundred so the car can glitter. Your nonna would take the spatula away from you.';
+      } else if (color?.price) {
+        state.studioNote = `${color.name} is a special paint. Pretty. It does not make the car worth more when you sell it.`;
+      } else if (color) {
+        state.studioNote = `${color.name} is included. The payment did not even look up.`;
+      }
+      patchStudio({ options: true });
     },
     view: () => {
       stopSpin();
@@ -238,19 +330,31 @@ function onClick(event) {
     top: () => {
       const build = ensureBuild();
       build.topDown = !build.topDown;
+      state.studioNote = '';
       toggleTopClass();
     },
     'to-desk': () => goto('negotiate'),
     'back-studio': () => goto('studio'),
     nudge: () => nudge(btn.dataset.nudge),
     term: () => {
-      ensureDeal().term = Number(btn.dataset.term);
+      const car = getCar();
+      const build = ensureBuild(car);
+      const deal = ensureDeal(car);
+      const before = snapshotDeal(deal, build);
+      deal.term = Number(btn.dataset.term);
       state.advice = '';
+      reactDesk(car, build, deal, before, 'term');
       patchDesk();
     },
     warranty: () => {
-      ensureBuild().single.warranty = btn.dataset.warranty;
+      const car = getCar();
+      const build = ensureBuild(car);
+      const deal = ensureDeal(car);
+      const before = snapshotDeal(deal, build);
+      build.single.warranty = btn.dataset.warranty;
+      deal.warrantySync = btn.dataset.warranty;
       state.advice = '';
+      reactDesk(car, build, deal, before, 'warranty');
       patchDesk();
     },
     ask: () => {
@@ -318,4 +422,5 @@ document.addEventListener('pointerdown', onPointerDown);
 document.addEventListener('pointerup', onPointerUp);
 
 loadLastGrade();
+mountFx();
 render();

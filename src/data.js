@@ -469,6 +469,11 @@ export function selectedOptions(car, build) {
   return lines;
 }
 
+export function warrantyPrice(id) {
+  const group = GROUPS.find((item) => item.id === 'warranty');
+  return group?.options.find((item) => item.id === id)?.price || 0;
+}
+
 export function priceBuild(car, build) {
   const lines = selectedOptions(car, build);
   const warrantyLine = lines.find((line) => line.group === 'warranty');
