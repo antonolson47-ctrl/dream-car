@@ -267,6 +267,15 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
   background: #07080d;
 }
 .story-svg { width: 100%; height: 100%; display: block; }
+.story-photo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  display: block;
+  background: #07080d;
+}
+.story-photo.ricky-story { object-position: center 42%; }
 .story-copy { padding: 14px 16px 16px; }
 .story-copy h1 { font-size: clamp(30px, 8vw, 40px); margin: 2px 0 8px; }
 .story-copy p { color: var(--muted); line-height: 1.45; }
@@ -606,6 +615,7 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
   display: grid;
   grid-template-columns: 54px 1fr;
   gap: 8px 10px;
+  align-items: start;
   flex: none;
   z-index: 4;
   margin: 0;
@@ -614,7 +624,14 @@ h3 { font-size: 15px; letter-spacing: 0.08em; text-transform: uppercase; font-fa
   border-bottom: 1px solid var(--line);
 }
 .ricky p { line-height: 1.4; }
-.ricky-face { position: relative; width: 54px; height: 54px; }
+.ricky .face {
+  width: 54px;
+  height: 66px;
+  border-radius: 8px;
+  object-fit: cover;
+  object-position: center 28%;
+}
+.ricky-face { position: relative; width: 54px; height: 66px; }
 .sweat {
   position: absolute;
   width: 6px;
