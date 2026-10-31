@@ -1,42 +1,9 @@
-/** Bust cards for the pre-game story. Original lot portraits, same people as the small faces. */
+import vinnyStoryUrl from './assets/vinny-story.jpg';
+
+/** Bust cards for the pre-game story. Vinny is the approved portrait. Ricky and the job stay drawn. */
 
 export function vinnyStoryArt() {
-  return `<svg class="story-svg" viewBox="0 0 360 300" aria-hidden="true">
-    <defs>
-      <radialGradient id="vinny-spot" cx="50%" cy="22%" r="58%">
-        <stop offset="0%" stop-color="#ffb25a" stop-opacity="0.42"/>
-        <stop offset="58%" stop-color="#5c1e2c" stop-opacity="0.2"/>
-        <stop offset="100%" stop-color="#07080d" stop-opacity="0"/>
-      </radialGradient>
-      <linearGradient id="vinny-coat" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#3a4048"/>
-        <stop offset="100%" stop-color="#1c2026"/>
-      </linearGradient>
-    </defs>
-    <rect width="360" height="300" fill="#100c10"/>
-    <rect width="360" height="300" fill="url(#vinny-spot)"/>
-    <path d="M28 300c14-36 64-64 152-70 88 6 138 34 152 70z" fill="#2a3140"/>
-    <path d="M118 186l62-18 62 18v114H118z" fill="#243044"/>
-    <path d="M156 176h48l10 124h-68z" fill="#f7f4ee"/>
-    <path d="M172 184l8 18 8-18 10 116h-36z" fill="#6b1d32"/>
-    <path d="M228 206h22l-3 16h-16z" fill="#f6f1e7"/>
-    <path d="M166 158h28v34h-28z" fill="#c9845a"/>
-    <path d="M138 124c2-4 6-16 12-20 2 8 3 16 1 22-4 2-10 2-13-2z" fill="#c9845a"/>
-    <path d="M222 124c-2-4-6-16-12-20-2 8-3 16-1 22 4 2 10 2 13-2z" fill="#c9845a"/>
-    <path d="M158 102C150 116 148 136 154 152L164 168Q180 178 196 168L206 152C212 136 210 116 202 102Q180 92 158 102Z" fill="#d4926a" stroke="#1a120c" stroke-width="1.8"/>
-    <path d="M160 132c4 12 12 20 20 22 8-2 16-10 20-22-8 4-32 4-40 0z" fill="#b56d48" opacity=".35"/>
-    <path d="M138 132C134 108 142 86 158 72C172 58 196 54 214 66C228 78 232 102 226 130L210 124C204 104 192 96 178 98C162 100 150 112 146 126Z" fill="#120f0d"/>
-    <path d="M164 78C182 64 200 66 216 82" fill="none" stroke="#3a322c" stroke-width="2.2" stroke-linecap="round"/>
-    <path d="M156 92C176 78 198 82 212 98" fill="none" stroke="#2a241e" stroke-width="1.7" stroke-linecap="round"/>
-    <path d="M152 112c8-3 16-2 22 1" fill="none" stroke="#1a120c" stroke-width="2.6" stroke-linecap="round"/>
-    <path d="M184 111c7-3 14-2 20 2" fill="none" stroke="#1a120c" stroke-width="2.6" stroke-linecap="round"/>
-    <ellipse cx="164" cy="122" rx="5" ry="2.4" fill="#1a120c"/>
-    <ellipse cx="198" cy="122" rx="5" ry="2.4" fill="#1a120c"/>
-    <path d="M178 118c.5 6 .3 10 0 14" fill="none" stroke="#a86b52" stroke-width="1.6" stroke-linecap="round"/>
-    <path d="M160 146C168 140 176 144 180 150C184 144 192 140 200 146L198 156C190 162 170 162 162 156Z" fill="#14110f" stroke="#14110f" stroke-width="1"/>
-    <path d="M168 164Q180 169 192 164" fill="none" stroke="#6a3030" stroke-width="1.7" stroke-linecap="round"/>
-    <path d="M70 248c28-16 70-22 110-8" fill="none" stroke="#ffb25a" stroke-width="1.2" opacity=".4"/>
-  </svg>`;
+  return `<img class="story-photo" src="${vinnyStoryUrl}" alt="">`;
 }
 
 export function rickyStoryArt() {
